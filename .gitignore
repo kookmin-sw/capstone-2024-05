@@ -193,3 +193,10 @@ pyrightconfig.json
 # data
 */raw_data
 */output
+documents/
+
+test.ipynb
+.DS_Store
+.python-version
+document.csv
+secrets.json
