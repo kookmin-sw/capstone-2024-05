@@ -204,6 +204,7 @@ documents
 __pycache__
 document.csv
 .python-version
+backend/filter/data
 
 /.vscode
 .vscode
