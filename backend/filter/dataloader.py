@@ -7,15 +7,16 @@ from transformers import AutoTokenizer
 class CustomDataset(torch.utils.data.Dataset):
     def __init__(
         self,
-        data_file,
+        data,
+        target,
         state,
         text_columns,
-        target_columns,
         max_length=256,
         model_name="monologg/koelectra-small-v3-discriminator",
     ):
         self.state = state
-        self.data = data_file
+        self.data = data
+        self.target = target
         self.text_columns = text_columns
         self.max_length = max_length
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -23,8 +24,7 @@ class CustomDataset(torch.utils.data.Dataset):
         if self.state == "test":
             self.inputs = self.preprocessing(self.data)
         else:
-            self.target_columns = target_columns if target_columns is not None else []
-            self.inputs, self.targets = self.preprocessing(self.data)
+            self.inputs, self.targets = self.preprocessing(self.data, self.target)
 
     def __getitem__(self, idx):
         if self.state == "test":
@@ -38,17 +38,17 @@ class CustomDataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.inputs)
 
-    def tokenizing(self, dataframe: pd.DataFrame) -> list:
+    def tokenizing(self, data_list: list[str]) -> list:
         """
         토크나이징
             Args :
-                dataframe (DataFrame): 토크나이징할 데이터
+                data_list (list[str]): 토크나이징할 데이터의 배열
             Return :
                 data (list) : 학습할 문장 토큰 리스트
         """
         data = []
         for item in tqdm(
-            dataframe["question"], desc="Tokenizing", total=len(dataframe["question"])
+            data_list, desc="Tokenizing", total=len(data_list)
         ):
             text = item
             # text = [item for text_column in self.text_columns]
@@ -62,13 +62,9 @@ class CustomDataset(torch.utils.data.Dataset):
             data.append(outputs["input_ids"])
         return data
 
-    def preprocessing(self, data):
+    def preprocessing(self, data, target):
         inputs = self.tokenizing(data)
         if self.state == "test":
             return inputs
         else:
-            try:
-                targets = data[self.target_columns]
-            except:
-                targets = []
-            return inputs, targets
+            return inputs, target
