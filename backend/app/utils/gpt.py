@@ -94,6 +94,8 @@ def gpt_genereate(instruction: str, retrieved_doc: List[dict], execution_cnt: in
             doc_title_list = [doc.metadata["title"] for doc in retrieved_doc]
             return template, description, doc_title_list, execution_cnt
 
+    if execution_cnt == 3:
+        return None, None, None, execution_cnt
     # if there is no valid template
     return gpt_genereate(instruction, retrieved_doc, execution_cnt + 1)
 

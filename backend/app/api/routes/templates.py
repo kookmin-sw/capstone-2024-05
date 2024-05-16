@@ -173,6 +173,12 @@ async def create_template(
             instruction=prompt, retrieved_doc=retrieved_doc
         )
 
+        if template_file is None:
+            raise HTTPException(
+                status_code=500,
+                detail="[template] 생성 실패3회 시도에서 유효한 템플릿이 나오지 않았습니다. 프롬프트를 수정해주세요",
+            )
+
         # get user_id from JWT
         db_promptAns = PromptAns(
             prompt=prompt,
